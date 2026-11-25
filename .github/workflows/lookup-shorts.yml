@@ -1,0 +1,36 @@
+name: Confirm submitted Shorts titles
+on:
+  push:
+    branches: [lookup-wedding-shorts]
+    paths: ['.github/workflows/lookup-shorts.yml']
+permissions:
+  contents: write
+jobs:
+  lookup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 - <<'PY'
+          import concurrent.futures, json
+          from pathlib import Path
+          from urllib.parse import urlencode
+          from urllib.request import urlopen
+          ids = "_16rfjsDOd8 2-bFvB75ORs U_eSkRMEOso -Rl-BVAyTpg d_HaeQ7_eFw dD-i70oBC_A eghwZsQIUFc zJcV8u-WSGo tDBfYuST0rM iDy56iz6_YM IcX4rvn_QKs ZobvtpIOjk8 Guqfp5JcEg4 q_MVHzYNE9k h48quAA94g4 tTnK4fMaMoM 7Efwokzuj4Y XeBquOAbI9E 8f5vmFHXLyE 9cS5CJsbMFI G19wOegYD1I hJwqXfQtxtc 2QRGolCHe38 7OCkH0Qk4H4 cR6T1A1W5R8 x_6a0NT0pYY 24CDcg2Rf1c xXyAQ9HHZaQ cIEeOxNP6GQ BezV0wuryj4 rif1siZQGzY yC39fbw2aiE ygdpPYtaQ5w Wt73MTGaX5E zzIQKsp1Whk 3ytHZnwZtZ4 KNppDY1wl50 5U-ojUjZqNU CquVdvULDfE EDSUwEdzoVU qwEiot9AUjs eqYbbKQk_6s PzUQMp-K7Nk K9me7sYoVN0 aWHWJZpoQbY qQBM-Zm1Qcs Dshm6rdu0pc HnNU0G4mAHw ZeW3SfZgUYA GJqdX-rKolk nEbce84lKp4 Z2dyjcYK0nc _RKct-vFAtw xOo7JN9WBxY 5yUIjxgIsKE nlr4zBrPxv4 nbk9pA7VpH4 ONObx9VY4EU Ue4888jWxrY rSsVkNZflSE zGrnVaUlEKw".split()
+          def lookup(video):
+              query = urlencode({"url": "https://www.youtube.com/watch?v=" + video, "format": "json"})
+              try:
+                  with urlopen("https://www.youtube.com/oembed?" + query, timeout=10) as response:
+                      data = json.load(response)
+                  return video, {"title": data["title"], "author": data["author_name"], "thumbnail": data.get("thumbnail_url")}
+              except Exception as error:
+                  return video, {"error": str(error)}
+          with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
+              Path("shorts-lookup.json").write_text(json.dumps(dict(executor.map(lookup, ids)), ensure_ascii=False, indent=2) + "\n")
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add shorts-lookup.json
+          git commit -m 'Record YouTube title lookup'
+          git push
