@@ -13,6 +13,7 @@ from scripts import catalog
 class CatalogTest(unittest.TestCase):
     def setUp(self):
         self.rules = catalog.load("rules")
+        self.seed_count = len(catalog.load("seed"))
 
     def analyze(self, platform, **details):
         raw = {"id": "example", "title": "", **details}
@@ -35,7 +36,7 @@ class CatalogTest(unittest.TestCase):
         collected = self.analyze("youtube", title="헤어변형 소개", date="2025-02-01")
         state = {"sources": {seed_key: collected}}
         topics, _ = catalog.inventory(state)
-        self.assertEqual(len(topics), 5)
+        self.assertEqual(len(topics), self.seed_count)
         self.assertEqual(topics[0]["title"], "헤어변형 꼭 필요할까?")
         real_load = catalog.load
 
@@ -58,11 +59,11 @@ class CatalogTest(unittest.TestCase):
                           permalink="https://www.instagram.com/p/example/")
         matching = {"yt:example": yt, "ig:example": ig}
         topics, _ = catalog.inventory({"sources": matching})
-        self.assertEqual(len(topics), 6)
+        self.assertEqual(len(topics), self.seed_count + 1)
         self.assertEqual(sum(len(topic["sources"]) == 2 for topic in topics), 1)
         ig["categories"] = ["신혼여행"]
         topics, _ = catalog.inventory({"sources": matching})
-        self.assertEqual(len(topics), 7)
+        self.assertEqual(len(topics), self.seed_count + 2)
 
     def test_partial_failure_preserves_old_data_and_date(self):
         old = self.analyze("youtube", title="웨딩촬영 헤어변형", date="2025-01-01")
@@ -134,7 +135,7 @@ class CatalogTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             catalog.build(Path(directory))
             payload = json.loads((Path(directory) / "data.json").read_text())
-            self.assertEqual(len(payload["topics"]), 5)
+            self.assertEqual(len(payload["topics"]), self.seed_count)
             self.assertEqual(len(payload["categories"]), 16)
             self.assertNotIn("originalTitle", json.dumps(payload))
             self.assertEqual({p.name for p in Path(directory).iterdir()},
