@@ -22,7 +22,7 @@
     <path fill="currentColor" fill-rule="evenodd" d="M16.65 1.62a4.38 4.38 0 0 1 2.25 8.13l-.67.4a4.38 4.38 0 0 1-.08 7.49l-7.72 4.59a4.38 4.38 0 0 1-4.48-7.53l.66-.39a4.38 4.38 0 0 1 .08-7.49l7.72-4.59a4.37 4.37 0 0 1 2.24-.61ZM10 15.5l5.3-3.5L10 8.5v7Z"/>
   </symbol>
 </svg>
-<header><a class="brand" href="./"><span aria-hidden="true">✦</span> 듬아의 웨딩사전</a><a href="#catalog">콘텐츠 모아보기 <span aria-hidden="true">↗</span></a></header>
+<header><a class="brand" href="./"><span aria-hidden="true">✦</span> 듬아의 웨딩사전</a><a href="#catalog">카테고리 <span aria-hidden="true">↗</span></a></header>
 <main>
 <section class="hero" aria-labelledby="headline">
 <div class="orbit" aria-hidden="true">✧</div>
@@ -35,10 +35,14 @@
 <button type="submit">검색</button>
 </form>
 </section>
-<section class="catalog" id="catalog" aria-labelledby="catalog-title">
-<div class="section-heading"><div><h2 id="catalog-title">콘텐츠 모아보기</h2><p id="total"></p></div><p id="updated"></p></div>
+<section class="catalog" id="catalog" aria-label="웨딩 콘텐츠">
+<div class="section-heading"><p id="total"></p><p id="updated"></p></div>
 <div class="filters">
+<div class="category-slider">
+<button class="category-arrow" type="button" id="categories-prev" aria-label="이전 카테고리" aria-controls="categories" disabled>‹</button>
 <div class="categories" role="group" aria-label="카테고리" id="categories"></div>
+<button class="category-arrow" type="button" id="categories-next" aria-label="다음 카테고리" aria-controls="categories" disabled>›</button>
+</div>
 <div class="platform-filter">
 <label for="platform">플랫폼</label>
 <select id="platform"></select>

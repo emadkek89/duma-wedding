@@ -3,6 +3,11 @@ import { matches } from "./search.mjs";
 const platforms = { all: "전체", youtube: "유튜브", shorts: "쇼츠", instagram: "웨딩툰" };
 const svgNamespace = "http://www.w3.org/2000/svg";
 const search = document.querySelector("#search");
+const categoryPriority = [
+  "스튜디오", "드레스", "헤어·메이크업", "웨딩홀", "결혼 준비·예산",
+  "본식", "본식스냅", "본식영상", "신랑정장", "웨딩뷰티",
+  "하객", "축의금", "혼주", "신혼여행", "신혼생활", "기타 웨딩꿀팁",
+];
 const categoryList = document.querySelector("#categories");
 const platform = document.querySelector("#platform");
 const results = document.querySelector("#results");
@@ -79,8 +84,12 @@ async function init() {
       : [node("p", "관련 콘텐츠를 찾지 못했어요. 다른 검색어나 필터로 다시 찾아보세요.", "empty")]));
   }
 
-  for (const name of ["", ...categories]) {
-    const button = node("button", name || "전체 카테고리");
+  const orderedCategories = [
+    ...categoryPriority.filter(name => categories.includes(name)),
+    ...categories.filter(name => !categoryPriority.includes(name)),
+  ];
+  for (const name of ["", ...orderedCategories]) {
+    const button = node("button", name || "전체");
     button.type = "button";
     button.setAttribute("aria-pressed", String(name === category));
     button.addEventListener("click", () => {
@@ -92,6 +101,20 @@ async function init() {
     });
     categoryList.append(button);
   }
+  const previous = document.querySelector("#categories-prev");
+  const next = document.querySelector("#categories-next");
+  function updateArrows() {
+    previous.disabled = categoryList.scrollLeft <= 1;
+    next.disabled = categoryList.scrollLeft + categoryList.clientWidth >= categoryList.scrollWidth - 1;
+  }
+  function slide(direction) {
+    categoryList.scrollBy({ left: direction * categoryList.clientWidth * 0.8 });
+  }
+  previous.addEventListener("click", () => slide(-1));
+  next.addEventListener("click", () => slide(1));
+  categoryList.addEventListener("scroll", updateArrows, { passive: true });
+  new ResizeObserver(updateArrows).observe(categoryList);
+  updateArrows();
   search.addEventListener("input", render);
   platform.addEventListener("change", render);
   document.querySelector("#search-form").addEventListener("submit", event => {
