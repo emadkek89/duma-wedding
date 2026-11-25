@@ -24,17 +24,6 @@
 </svg>
 <header><a class="brand" href="./"><span aria-hidden="true">✦</span> 듬아의 웨딩사전</a><a href="#catalog">카테고리 <span aria-hidden="true">↗</span></a></header>
 <main>
-<section class="hero" aria-labelledby="headline">
-<div class="orbit" aria-hidden="true">✧</div>
-<p class="eyebrow">DumA WEDDING DICTIONARY</p>
-<h1 id="headline">결혼 준비하다<br><em>궁금한 게 생겼다면?</em></h1>
-<form role="search" id="search-form">
-<label class="sr-only" for="search">웨딩 콘텐츠 검색</label>
-<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.6"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-<input id="search" type="search" placeholder="드레스, 헤어변형, 신혼여행…" autocomplete="off">
-<button type="submit">검색</button>
-</form>
-</section>
 <section class="catalog" id="catalog" aria-label="웨딩 콘텐츠">
 <div class="section-heading"><p id="total"></p><p id="updated"></p></div>
 <div class="filters">
@@ -43,9 +32,18 @@
 <div class="categories" role="group" aria-label="카테고리" id="categories"></div>
 <button class="category-arrow" type="button" id="categories-next" aria-label="다음 카테고리" aria-controls="categories" disabled>›</button>
 </div>
+<div class="filter-toolbar">
+<form role="search" id="search-form">
+<label class="sr-only" for="search">웨딩 콘텐츠 검색</label>
+<input id="search" type="search" placeholder="콘텐츠 검색" autocomplete="off">
+<button type="submit" aria-label="검색">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+</button>
+</form>
 <div class="platform-filter">
-<label for="platform">플랫폼</label>
+<label class="sr-only" for="platform">플랫폼</label>
 <select id="platform"></select>
+</div>
 </div>
 </div>
 <p id="status" role="status"></p>

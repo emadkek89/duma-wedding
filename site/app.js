@@ -12,7 +12,6 @@ const categoryList = document.querySelector("#categories");
 const platform = document.querySelector("#platform");
 const results = document.querySelector("#results");
 const status = document.querySelector("#status");
-const catalog = document.querySelector("#catalog");
 let category = "";
 
 function node(tag, value, className) {
@@ -120,7 +119,6 @@ async function init() {
   document.querySelector("#search-form").addEventListener("submit", event => {
     event.preventDefault();
     render();
-    catalog.scrollIntoView();
   });
   render();
 }
