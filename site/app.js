@@ -4,7 +4,7 @@ const platforms = { all: "전체", youtube: "유튜브", shorts: "쇼츠", insta
 const svgNamespace = "http://www.w3.org/2000/svg";
 const search = document.querySelector("#search");
 const categoryPriority = [
-  "스튜디오", "드레스", "헤어·메이크업", "웨딩홀", "결혼 준비·예산",
+  "스튜디오", "드레스", "헤어·메이크업", "포즈", "웨딩홀", "결혼 준비·예산",
   "본식", "본식스냅", "본식영상", "신랑정장", "웨딩뷰티",
   "하객", "축의금", "혼주", "신혼여행", "신혼생활", "기타 웨딩꿀팁",
 ];

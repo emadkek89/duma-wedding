@@ -121,6 +121,7 @@ class CatalogTest(unittest.TestCase):
                          ["축의금"])
         cases = {
             "촬영드레스": ["드레스", "스튜디오"],
+            "웨딩촬영 포즈": ["스튜디오", "포즈"],
             "신랑 예복": ["신랑정장"],
             "웨딩네일": ["웨딩뷰티"],
             "모바일 청첩장": ["하객"],
@@ -136,7 +137,7 @@ class CatalogTest(unittest.TestCase):
             catalog.build(Path(directory))
             payload = json.loads((Path(directory) / "data.json").read_text())
             self.assertEqual(len(payload["topics"]), self.seed_count)
-            self.assertEqual(len(payload["categories"]), 16)
+            self.assertEqual(len(payload["categories"]), 17)
             self.assertNotIn("originalTitle", json.dumps(payload))
             self.assertEqual({p.name for p in Path(directory).iterdir()},
                              {"index.html", "style.css", "app.js", "search.mjs", "data.json"})
