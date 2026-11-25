@@ -23,15 +23,6 @@ function node(tag, value, className) {
 
 function card(topic) {
   const article = node("article", "", "card");
-  if (topic.thumbnail) {
-    const image = node("img");
-    image.src = topic.thumbnail;
-    image.alt = "";
-    image.loading = "lazy";
-    image.referrerPolicy = "no-referrer";
-    image.addEventListener("error", () => image.remove(), { once: true });
-    article.append(image);
-  }
   const body = node("div", "", "card-body");
   const tags = node("div", "", "tags");
   for (const label of topic.categories) tags.append(node("span", label));
@@ -54,8 +45,17 @@ function card(topic) {
     link.rel = "noopener noreferrer";
     links.append(link);
   }
-  body.append(tags, node("h3", topic.title), links);
+  body.append(tags, links, node("h3", topic.title));
   article.append(body);
+  if (topic.thumbnail) {
+    const image = node("img");
+    image.src = topic.thumbnail;
+    image.alt = "";
+    image.loading = "lazy";
+    image.referrerPolicy = "no-referrer";
+    image.addEventListener("error", () => image.remove(), { once: true });
+    article.append(image);
+  }
   return article;
 }
 
