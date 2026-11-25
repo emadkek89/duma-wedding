@@ -1,5 +1,14 @@
 {
   "sources": {},
-  "status": {},
+  "status": {
+    "youtube": {
+      "state": "미연결",
+      "at": "2026-11-25T09:12:37+00:00"
+    },
+    "instagram": {
+      "state": "미연결",
+      "at": "2026-11-25T09:12:37+00:00"
+    }
+  },
   "lastUpdated": null
 }
