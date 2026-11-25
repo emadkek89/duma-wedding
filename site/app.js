@@ -2,12 +2,12 @@ import { matches } from "./search.mjs";
 
 const platforms = { all: "전체", youtube: "유튜브", shorts: "쇼츠", instagram: "웨딩툰" };
 const search = document.querySelector("#search");
-const category = document.querySelector("#category");
-const platformList = document.querySelector("#platforms");
+const categoryList = document.querySelector("#categories");
+const platform = document.querySelector("#platform");
 const results = document.querySelector("#results");
 const status = document.querySelector("#status");
 const catalog = document.querySelector("#catalog");
-let platform = "all";
+let category = "";
 
 function node(tag, value, className) {
   const element = document.createElement(tag);
@@ -53,12 +53,14 @@ async function init() {
   document.querySelector("#updated").textContent = lastUpdated
     ? `마지막 정상 업데이트 ${new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeZone: "Asia/Seoul" }).format(new Date(lastUpdated))}`
     : "자동 업데이트 기록 대기 중";
-  for (const name of categories) category.add(new Option(name, name));
+  for (const [key, label] of Object.entries(platforms)) {
+    platform.add(new Option(key === "all" ? "모든 플랫폼" : label, key));
+  }
 
   function render() {
     const filtered = topics.filter(topic =>
-      (!category.value || topic.categories.includes(category.value))
-      && (platform === "all" || topic.sources.some(source => source.platform === platform))
+      (!category || topic.categories.includes(category))
+      && (platform.value === "all" || topic.sources.some(source => source.platform === platform.value))
       && matches(topic, search.value, aliases)
     );
     status.textContent = filtered.length === topics.length ? "" : `검색 결과 ${filtered.length}개`;
@@ -67,21 +69,21 @@ async function init() {
       : [node("p", "관련 콘텐츠를 찾지 못했어요. 다른 검색어나 필터로 다시 찾아보세요.", "empty")]));
   }
 
-  for (const [key, label] of Object.entries(platforms)) {
-    const button = node("button", label);
+  for (const name of ["", ...categories]) {
+    const button = node("button", name || "전체 카테고리");
     button.type = "button";
-    button.setAttribute("aria-pressed", String(key === platform));
+    button.setAttribute("aria-pressed", String(name === category));
     button.addEventListener("click", () => {
-      platform = key;
-      for (const choice of platformList.children) {
+      category = name;
+      for (const choice of categoryList.children) {
         choice.setAttribute("aria-pressed", String(choice === button));
       }
       render();
     });
-    platformList.append(button);
+    categoryList.append(button);
   }
   search.addEventListener("input", render);
-  category.addEventListener("change", render);
+  platform.addEventListener("change", render);
   document.querySelector("#search-form").addEventListener("submit", event => {
     event.preventDefault();
     render();

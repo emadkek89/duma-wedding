@@ -25,8 +25,11 @@
 <section class="catalog" id="catalog" aria-labelledby="catalog-title">
 <div class="section-heading"><div><h2 id="catalog-title">콘텐츠 모아보기</h2><p id="total"></p></div><p id="updated"></p></div>
 <div class="filters">
-<div class="platforms" role="group" aria-label="플랫폼" id="platforms"></div>
-<label class="sr-only" for="category">카테고리</label><select id="category"><option value="">모든 카테고리</option></select>
+<div class="categories" role="group" aria-label="카테고리" id="categories"></div>
+<div class="platform-filter">
+<label for="platform">플랫폼</label>
+<select id="platform"></select>
+</div>
 </div>
 <p id="status" role="status"></p>
 <div id="results" class="grid"></div>
