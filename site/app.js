@@ -1,6 +1,7 @@
 import { matches } from "./search.mjs";
 
 const platforms = { all: "전체", youtube: "유튜브", shorts: "쇼츠", instagram: "웨딩툰" };
+const svgNamespace = "http://www.w3.org/2000/svg";
 const search = document.querySelector("#search");
 const categoryList = document.querySelector("#categories");
 const platform = document.querySelector("#platform");
@@ -34,7 +35,16 @@ function card(topic) {
   if (age >= 0 && age < 7 * 86400000) tags.append(node("span", "신규", "new"));
   const links = node("div", "", "links");
   for (const source of topic.sources) {
-    const link = node("a", `${platforms[source.platform]} 보기 ↗`);
+    const label = `${platforms[source.platform]} 보기`;
+    const link = node("a");
+    link.setAttribute("aria-label", label);
+    link.title = label;
+    const icon = document.createElementNS(svgNamespace, "svg");
+    icon.setAttribute("aria-hidden", "true");
+    const symbol = document.createElementNS(svgNamespace, "use");
+    symbol.setAttribute("href", `#source-${source.platform}`);
+    icon.append(symbol);
+    link.append(icon);
     link.href = source.url;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
