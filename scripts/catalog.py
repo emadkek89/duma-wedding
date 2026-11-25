@@ -326,6 +326,26 @@ def topic_key(item_id, item):
     return "same:" + signature if signature else item_id
 
 
+def current_categories(labels, evidence, rules):
+    renamed = {
+        "웨딩드레스": "드레스",
+        "스튜디오·웨딩촬영": "스튜디오",
+        "신랑·예복": "신랑정장",
+        "웨딩네일": "웨딩뷰티",
+        "청첩장": "하객",
+        "본식 준비·진행": "본식",
+    }
+    categories = {renamed.get(label, label) for label in labels if label != "하객·축의금"}
+    if "하객·축의금" in labels:
+        fields = [norm(field) for field in evidence]
+        matched = {
+            label for label in ("하객", "축의금")
+            if any(norm(term) in field for term in rules["categories"][label] for field in fields)
+        }
+        categories.update(matched or {"하객"})
+    return [label for label in rules["categories"] if label in categories]
+
+
 def inventory(state):
     rules = load("rules")
     items = {key: value.copy() for key, value in state["sources"].items()}
@@ -346,6 +366,8 @@ def inventory(state):
     for key, item in items.items():
         if item["status"] != "published":
             continue
+        evidence = [item["title"], item.get("originalTitle") or "", *item["keywords"]]
+        item["categories"] = current_categories(item["categories"], evidence, rules)
         name = item.get("topic") or topic_key(key, item)
         groups.setdefault(name, []).append((key, item))
 
@@ -376,10 +398,11 @@ def public_topic(items, edits, rules):
         return None
     categories = {label for item in items for label in item["categories"]}
     title = edits.get("title", items[0]["title"])
+    keywords = edits.get("keywords", sorted({term for item in items for term in item["keywords"]}))
     return {
         "title": title,
-        "categories": edits.get("categories", [label for label in rules["categories"] if label in categories]),
-        "keywords": edits.get("keywords", sorted({term for item in items for term in item["keywords"]})),
+        "categories": current_categories(edits.get("categories", categories), [title, *keywords], rules),
+        "keywords": keywords,
         "date": max((item.get("date") or "" for item in items), default="") or None,
         "thumbnail": next((item["thumbnail"] for item in items if item.get("thumbnail")), None),
         "sources": [{"platform": item["platform"], "url": item["url"]} for item in items],

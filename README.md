@@ -53,7 +53,7 @@ YouTube Data API는 쇼츠 여부를 전용 필드로 제공하지 않습니다.
   "items": {
     "yt:yhgTtVzNlPs": {
       "title": "웨딩촬영 헤어변형 꼭 해야 할까?",
-      "categories": ["헤어·메이크업", "스튜디오·웨딩촬영"],
+      "categories": ["헤어·메이크업", "스튜디오"],
       "keywords": ["헤어변형", "웨딩촬영 헤어"],
       "topic": "촬영-헤어변형",
       "status": "published"

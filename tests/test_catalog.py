@@ -112,12 +112,30 @@ class CatalogTest(unittest.TestCase):
               patch.object(catalog, "api", side_effect=api)):
             self.assertEqual([raw["id"] for raw in catalog.youtube_items(True)], ["first", "second"])
 
+    def test_legacy_and_new_categories(self):
+        legacy = ["웨딩네일", "웨딩뷰티", "청첩장", "하객·축의금"]
+        self.assertEqual(catalog.current_categories(legacy, ["축의대"], self.rules),
+                         ["웨딩뷰티", "하객", "축의금"])
+        self.assertEqual(catalog.current_categories(["하객·축의금"], ["축의금"], self.rules),
+                         ["축의금"])
+        cases = {
+            "촬영드레스": ["드레스", "스튜디오"],
+            "신랑 예복": ["신랑정장"],
+            "웨딩네일": ["웨딩뷰티"],
+            "모바일 청첩장": ["하객"],
+            "축의금": ["축의금"],
+            "본식 식순": ["본식"],
+        }
+        for title, expected in cases.items():
+            with self.subTest(title=title):
+                self.assertEqual(self.analyze("youtube", title=title)["categories"], expected)
+
     def test_build_excludes_originals_and_reviews(self):
         with tempfile.TemporaryDirectory() as directory:
             catalog.build(Path(directory))
             payload = json.loads((Path(directory) / "data.json").read_text())
             self.assertEqual(len(payload["topics"]), 5)
-            self.assertEqual(len(payload["categories"]), 17)
+            self.assertEqual(len(payload["categories"]), 16)
             self.assertNotIn("originalTitle", json.dumps(payload))
             self.assertEqual({p.name for p in Path(directory).iterdir()},
                              {"index.html", "style.css", "app.js", "search.mjs", "data.json"})
