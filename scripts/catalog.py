@@ -22,6 +22,7 @@ YT_API = "https://www.googleapis.com/youtube/v3/"
 RSS_NS = {"a": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015",
           "media": "http://search.yahoo.com/mrss/"}
 UTC = dt.timezone.utc
+SERIES = ("웨딩토크", "드레스 같이 볼래요?", "야매수선", "포즈한입")
 
 
 def load(name):
@@ -393,16 +394,25 @@ def inventory(state):
     return topics, items
 
 
+def item_series(item):
+    if "series" in item:
+        return item["series"]
+    title = norm(item.get("originalTitle") or "")
+    return [name for name in SERIES if norm(name) in title]
+
+
 def public_topic(items, edits, rules):
     if edits.get("hidden"):
         return None
     categories = {label for item in items for label in item["categories"]}
+    series = sorted({name for item in items for name in item_series(item)})
     title = edits.get("title", items[0]["title"])
     keywords = edits.get("keywords", sorted({term for item in items for term in item["keywords"]}))
     return {
         "title": title,
         "categories": current_categories(edits.get("categories", categories), [title, *keywords], rules),
         "keywords": keywords,
+        "series": edits.get("series", series),
         "date": max((item.get("date") or "" for item in items), default="") or None,
         "thumbnail": next((item["thumbnail"] for item in items if item.get("thumbnail")), None),
         "sources": [{"platform": item["platform"], "url": item["url"]} for item in items],

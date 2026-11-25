@@ -26,6 +26,7 @@ function card(topic) {
   const body = node("div", "", "card-body");
   const tags = node("div", "", "tags");
   for (const label of topic.categories) tags.append(node("span", label));
+  for (const name of topic.series ?? []) tags.append(node("span", name, "series"));
   const age = Date.now() - Date.parse(topic.date);
   if (age >= 0 && age < 7 * 86400000) tags.append(node("span", "신규", "new"));
   const links = node("div", "", "links");

@@ -4,7 +4,7 @@ export function normalize(value) {
 
 export function matches(topic, query, aliases) {
   const groups = aliases.map(group => group.map(normalize));
-  const fields = [topic.title, ...topic.categories, ...topic.keywords].map(normalize);
+  const fields = [topic.title, ...topic.categories, ...(topic.series ?? []), ...topic.keywords].map(normalize);
   const has = term => fields.some(field => field.includes(term));
   const words = query.trim().split(/[\s,]+/u).map(normalize).filter(Boolean);
   const reachable = new Set([0]);
