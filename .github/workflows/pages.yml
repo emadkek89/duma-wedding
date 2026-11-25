@@ -1,0 +1,86 @@
+name: 웨딩사전 업데이트
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      backfill:
+        description: '과거 게시물 전체 수집 (최초 연결 시 선택)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: wedding-dictionary-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    outputs:
+      refresh-failed: ${{ steps.refresh.outputs.failed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: OCR 설치
+        if: github.event_name != 'push' && vars.ENABLE_OCR == '1'
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr tesseract-ocr-kor tesseract-ocr-eng
+      - name: 공식 콘텐츠 수집
+        if: github.event_name != 'push'
+        id: refresh
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_CHANNEL_ID: ${{ vars.YOUTUBE_CHANNEL_ID }}
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          YOUTUBE_CAPTIONS_ACCESS_TOKEN: ${{ secrets.YOUTUBE_CAPTIONS_ACCESS_TOKEN }}
+          META_GRAPH_VERSION: ${{ vars.META_GRAPH_VERSION || 'v25.0' }}
+          ENABLE_OCR: ${{ vars.ENABLE_OCR }}
+          BACKFILL: ${{ inputs.backfill }}
+        run: |
+          args=()
+          if [[ "$BACKFILL" == true ]]; then args+=(--backfill); fi
+          if python scripts/catalog.py refresh "${args[@]}" --summary "$GITHUB_STEP_SUMMARY"; then
+            echo "failed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "failed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: 수집 결과 커밋
+        if: github.event_name != 'push'
+        run: |
+          if ! git diff --quiet -- catalog/state.json; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add catalog/state.json
+            git commit -m 'Update wedding catalog'
+            git push origin HEAD:main
+          fi
+      - run: python scripts/catalog.py build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: GitHub Pages 배포
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: 수집 실패 보고
+        if: needs.build.outputs.refresh-failed == 'true'
+        run: |
+          echo '일부 수집이 실패했습니다. 기존 데이터와 성공한 채널의 데이터는 배포했습니다. build 작업의 요약을 확인하세요.'
+          exit 1
